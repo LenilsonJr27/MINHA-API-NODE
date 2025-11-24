@@ -2,15 +2,16 @@
 //Estrutura da API
 
 // Importando o módulo express para lidar com rotas e middlewares
-const express = require('express'); 
+import express from "express"; 
+
+// Importando as rotas da aplicação relacionadas às tarefas
+import tarefasRoutes from "./routes/tarefaRoutes.js";
 
 // Inicializando a aplicação Express
 const app = express(); 
 
 app.use(express.json());
 
-// Importando as rotas da aplicação relacionadas às tarefas
-const tarefasRoutes = require('./routes/tarefaRoutes');
 
 // Definindo a porta em que o servidor irá escutar
 const PORT = process.env.PORT || 3000; 

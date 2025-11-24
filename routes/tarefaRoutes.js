@@ -2,12 +2,15 @@
 
 //routes/tarefaRoutes.js
 
-const express = require('express');
-const router = express.Router();
-const tarefaController = require('../controllers/tarefaController');
+import { Router } from "express";
+import{ listarTarefas,criarTarefa,atualizarTarefa,excluirTarefa, }
+from "../controllers/tarefaController.js";
+
+const router = Router();
 //Rotas para operações CRUD de tarefas
-router.get('/tarefas', tarefaController.listarTarefas);
-router.post('/tarefas', tarefaController.criarTarefa);
-router.put('/tarefas/:id', tarefaController.atualizarTarefa);
-router.delete('/tarefas/:id', tarefaController.excluirTarefa);
-module.exports = router;
+router.get('/tarefas', listarTarefas);
+router.post('/tarefas', criarTarefa);
+router.put('/tarefas/:id', atualizarTarefa);
+router.delete('/tarefas/:id', excluirTarefa);
+
+export default router;

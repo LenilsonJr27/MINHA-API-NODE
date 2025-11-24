@@ -4,12 +4,12 @@
 let tarefas = [];
 
 //Função para listar tarefas
-const listarTarefas = (req, res) => { 
+export const listarTarefas = (req, res) => { 
     res.json(tarefas); // Retorna a lista de tarefas como JSON
 };
 
 //Função para criar uma nova tarefa
-const criarTarefa = (req, res) =>{
+export const criarTarefa = (req, res) =>{
     const {descricao} = req.body; // Obtém a descrição da nova tarefa do corpo da requisição
     const novaTarefa = {id: tarefas.length + 1, descricao}; //Cria um objeto representando a nova tarefa
     tarefas.push(novaTarefa); // Adiciona a nova tarefa à lista de tarefas
@@ -18,7 +18,7 @@ const criarTarefa = (req, res) =>{
 
 //Função para atualizar uma tarefa existente
 
-const atualizarTarefa = (req, res) => {
+export const atualizarTarefa = (req, res) => {
     const {id} = req.params;// Obtém o ID da tarefa a ser atualizada dos parâmetros da URL
     const {descricao} = req.body; // Obtém a nova descrição da tarefa do corpo da requisição
     const index = tarefas.findIndex(tarefa => tarefa.id === parseInt(id)); // Encontra o índice na lista de tarefas
@@ -31,7 +31,7 @@ const atualizarTarefa = (req, res) => {
 };
 
 // Função para excluir uma tarefa
-const excluirTarefa = (req, res) =>{
+export const excluirTarefa = (req, res) =>{
     const {id} = req.params; // Obtém o ID da tarefa a ser excluída dos parâmentros da URL
     const index = tarefas.findIndex(tarefa => tarefa.id === parseInt(id)); // Encontra o índice da tarefa na lista de tarefas
     if (index !== -1){ //Verifica se a tarefa foi encontrada
@@ -42,6 +42,3 @@ const excluirTarefa = (req, res) =>{
     }
 };
 
-//Exportando os controladores para serem utilizados em outros arquivos 
-
-module.exports = {listarTarefas, criarTarefa, atualizarTarefa, excluirTarefa};
