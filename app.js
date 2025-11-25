@@ -14,7 +14,12 @@ app.use(express.json());
 
 
 // Definindo a porta em que o servidor irá escutar
-const PORT = process.env.PORT || 3000; 
+const PORT = process.env.PORT || 3000;
+
+// const data = [
+//     {name: "Lenilson", company: "Objeto Brasil"},
+//     {name: "Junior", company: "Doce Trama"},
+// ];
 
 // Configurando as rotas da aplicação para utilizar as rotas 
 // relacionadas às tarefas
@@ -22,7 +27,7 @@ app.use('/api', tarefasRoutes);
 
 // Configurando uma rota para exibir uma mensagem de boas-vindas
  app.get('/', (req, res) => { 
-     res.send(`Bem-vindos à API de tarefas! ${PORT}`);
+    res.send(`Bem-vindos à API de tarefas! ${PORT}`);
  });
 
 // Inicializando o servidor e fazendo com que ele escute na porta definida 

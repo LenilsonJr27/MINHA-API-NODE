@@ -8,6 +8,19 @@ export const listarTarefas = (req, res) => {
     res.json(tarefas); // Retorna a lista de tarefas como JSON
 };
 
+export const obterTarefaPorId = (req, res) => {
+    const { id } = req.params;
+
+    const tarefa = tarefas.find(t => t.id === parseInt(id));
+
+    if (tarefa) {
+        res.json(tarefa);
+    } else {
+        res.status(404).json({ mensagem: 'Tarefa não encontrada' });
+    }
+};
+
+
 //Função para criar uma nova tarefa
 export const criarTarefa = (req, res) =>{
     const {descricao} = req.body; // Obtém a descrição da nova tarefa do corpo da requisição
