@@ -3,7 +3,7 @@
 //routes/tarefaRoutes.js
 
 import { Router } from "express";
-import{ listarTarefas,obterTarefaPorId,criarTarefa,atualizarTarefa,excluirTarefa, }
+import{listarTarefas,obterTarefaPorId,criarTarefa,atualizarTarefa,excluirTarefa}
 from "../controllers/tarefaController.js";
 
 const router = Router();

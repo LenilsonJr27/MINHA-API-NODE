@@ -1,57 +1,128 @@
-// Controlador para lidar com operações relacionadas às tarefas
+// controllers/tarefaController.js
 
-//Array simulando uma lista de tarefas
-let tarefas = [];
+import { promises as fs } from 'fs';
+import path from 'path';
 
-//Função para listar tarefas
-export const listarTarefas = (req, res) => { 
-    res.json(tarefas); // Retorna a lista de tarefas como JSON
+// Caminho do arquivo de tarefas
+const caminhoArquivo = path.resolve('data', 'tarefas.json');
+
+// Função utilizada para ler as tarefas do arquivo
+async function lerTarefas() {
+  try {
+    const dados = await fs.readFile(caminhoArquivo, 'utf-8');
+    return JSON.parse(dados);
+  } catch (err) {
+    // Se o arquivo não existir, começa com lista vazia
+    if (err.code === 'ENOENT') {
+      return [];
+    }
+    console.error('Erro ao ler tarefas:', err);
+    throw err;
+  }
+}
+
+// Função utilizada para salvar as tarefas no arquivo
+async function salvarTarefas(tarefas) {
+  try {
+    const json = JSON.stringify(tarefas, null, 2);
+    await fs.writeFile(caminhoArquivo, json, 'utf-8');
+  } catch (err) {
+    console.error('Erro ao salvar tarefas:', err);
+    throw err;
+  }
+}
+
+// -------------------- CONTROLLERS -------------------- //
+
+// Função para listar tarefas
+export const listarTarefas = async (req, res) => {
+  try {
+    const tarefas = await lerTarefas();
+    res.json(tarefas);
+  } catch {
+    res.status(500).json({ mensagem: 'Erro ao listar tarefas' });
+  }
 };
 
-export const obterTarefaPorId = (req, res) => {
+export const obterTarefaPorId = async (req, res) => {
+  try {
     const { id } = req.params;
+    const tarefas = await lerTarefas();
 
     const tarefa = tarefas.find(t => t.id === parseInt(id));
 
     if (tarefa) {
-        res.json(tarefa);
+      res.json(tarefa);
     } else {
-        res.status(404).json({ mensagem: 'Tarefa não encontrada' });
+      res.status(404).json({ mensagem: 'Tarefa não encontrada' });
     }
+  } catch {
+    res.status(500).json({ mensagem: 'Erro ao buscar tarefa' });
+  }
 };
 
+// Função para criar uma nova tarefa
+export const criarTarefa = async (req, res) => {
+  try {
+    const { descricao } = req.body;
+    const tarefas = await lerTarefas();
 
-//Função para criar uma nova tarefa
-export const criarTarefa = (req, res) =>{
-    const {descricao} = req.body; // Obtém a descrição da nova tarefa do corpo da requisição
-    const novaTarefa = {id: tarefas.length + 1, descricao}; //Cria um objeto representando a nova tarefa
-    tarefas.push(novaTarefa); // Adiciona a nova tarefa à lista de tarefas
-    res.status(201).json(novaTarefa); // Retorna a nova tarefa como JSON, com o status 201 (Created)
+    // gera id sem repetir (pega o maior id e soma 1)
+    const novoId = tarefas.length
+      ? Math.max(...tarefas.map(t => t.id)) + 1
+      : 1;
+
+    const novaTarefa = { id: novoId, descricao };
+    tarefas.push(novaTarefa);
+
+    await salvarTarefas(tarefas);
+
+    res.status(201).json(novaTarefa);
+  } catch {
+    res.status(500).json({ mensagem: 'Erro ao criar tarefa' });
+  }
 };
 
-//Função para atualizar uma tarefa existente
+// Função para atualizar uma tarefa existente
+export const atualizarTarefa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { descricao } = req.body;
 
-export const atualizarTarefa = (req, res) => {
-    const {id} = req.params;// Obtém o ID da tarefa a ser atualizada dos parâmetros da URL
-    const {descricao} = req.body; // Obtém a nova descrição da tarefa do corpo da requisição
-    const index = tarefas.findIndex(tarefa => tarefa.id === parseInt(id)); // Encontra o índice na lista de tarefas
-    if (index !== -1){ //Verifica se a tarefa foi encontrada
-        tarefas[index].descricao = descricao; // Atualiza a descrição da tarefa
-        res.json(tarefas[index]); // Retorna a tarefa atualizada como JSON
-    }else{
-        res.status(404).json({mensagem: 'Tarefa não encontrada'}); // Retorna um erro 404 se a tarefa não foi encontrada
+    const tarefas = await lerTarefas();
+
+    const index = tarefas.findIndex(tarefa => tarefa.id === parseInt(id));
+    if (index !== -1) {
+      tarefas[index].descricao = descricao;
+
+      await salvarTarefas(tarefas);
+
+      res.json(tarefas[index]);
+    } else {
+      res.status(404).json({ mensagem: 'Tarefa não encontrada' });
     }
+  } catch {
+    res.status(500).json({ mensagem: 'Erro ao atualizar tarefa' });
+  }
 };
 
 // Função para excluir uma tarefa
-export const excluirTarefa = (req, res) =>{
-    const {id} = req.params; // Obtém o ID da tarefa a ser excluída dos parâmentros da URL
-    const index = tarefas.findIndex(tarefa => tarefa.id === parseInt(id)); // Encontra o índice da tarefa na lista de tarefas
-    if (index !== -1){ //Verifica se a tarefa foi encontrada
-        tarefas.splice(index, 1); //Remove a tarefa da lista de tarefas 
-        res.json({mensagem: 'Tarefa excluída com sucesso'}); // Retorna uma mensagem de sucesso
-    }else{
-        res.status(404).json({mensagem: 'Tarefa não encontrada'});// Retorna um erro 404 se a tarefa não foi encontrada
-    }
-};
+export const excluirTarefa = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const tarefas = await lerTarefas();
 
+    const index = tarefas.findIndex(tarefa => tarefa.id === parseInt(id));
+    if (index !== -1) {
+      tarefas.splice(index, 1);
+
+      await salvarTarefas(tarefas);
+
+      res.json({ mensagem: 'Tarefa excluída com sucesso' });
+    } else {
+      res.status(404).json({ mensagem: 'Tarefa não encontrada' });
+    }
+  } catch {
+    res.status(500).json({ mensagem: 'Erro ao excluir tarefa' });
+  }
+};
